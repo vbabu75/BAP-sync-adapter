@@ -12,7 +12,7 @@ This service implements both **async** and **sync** request-response patterns:
 1. Receives POST requests at `/api/{sub-route}` (e.g. `/api/search`, `/api/select`)
 2. Forwards them to target service at `{ONIX_URL}/{sub-route}`
 3. Waits for async callback on `/webhook/{on_sub-route}` (e.g., `/webhook/on_search`)
-4. Matches request and callback using `transaction_id` and `message_id`
+4. Matches request and callback using `transactionId` and `messageId`
 5. Returns the callback response to the original caller
 6. Returns timeout error if no callback within 30 seconds
 
@@ -141,7 +141,7 @@ The server will start on the port specified in your `.env` file (default: 3000).
 ### Async Forwarding Endpoint (For other routes)
 - `POST /api/{sub-route}` - Forwards request and waits for webhook callback
   - Applies to: search, select, init, confirm, update, track, rate, rating, support, cancel, status, reconcile
-  - Requires `context.transaction_id` and `context.message_id` in request body
+  - Requires `context.transactionId` and `context.messageId` in request body (legacy snake_case names are also accepted)
   - Forwards to `{ONIX_URL}/{sub-route}`
   - Waits up to 30 seconds for callback on `/webhook/{on_sub-route}`
   - Returns webhook response or timeout error
@@ -149,7 +149,7 @@ The server will start on the port specified in your `.env` file (default: 3000).
 ### Webhook Endpoint
 - `POST /webhook/{on_sub-route}` - Receives async callbacks from target service
   - Only for async routes (not discover)
-  - Matches with pending requests using `transaction_id`, `message_id`, and route mapping
+  - Matches with pending requests using `transactionId`, `messageId`, and route mapping
   - Returns ACK/NACK response
 
 ## Route Mapping
@@ -281,8 +281,8 @@ curl -X POST http://localhost:3000/api/select \
   -H "Content-Type: application/json" \
   -d '{
     "context": {
-      "transaction_id": "txn-12345",
-      "message_id": "msg-67890"
+      "transactionId": "txn-12345",
+      "messageId": "msg-67890"
     },
     "message": {
       "order": {
@@ -311,8 +311,8 @@ curl -X POST http://localhost:3000/webhook/on_select \
   -H "Content-Type: application/json" \
   -d '{
     "context": {
-      "transaction_id": "txn-12345",
-      "message_id": "msg-67890"
+      "transactionId": "txn-12345",
+      "messageId": "msg-67890"
     },
     "message": {
       "order": {
@@ -358,7 +358,7 @@ If no callback is received within 30 seconds:
 
 ### Async Routes (Redis-Based)
 
-1. **Client Request** - Sends POST to `/api/{sub-route}` with `context.transaction_id` and `context.message_id`
+1. **Client Request** - Sends POST to `/api/{sub-route}` with `context.transactionId` and `context.messageId`
 2. **Register in Redis** - Gateway stores pending request metadata in Redis with 35s TTL
 3. **Subscribe to Pub/Sub** - Gateway subscribes to Redis channel `callback:{txn_id}:{msg_id}`
 4. **Forward Request** - Gateway forwards request to `{ONIX_URL}/{sub-route}` asynchronously
@@ -417,7 +417,7 @@ To run the built binary:
 - **Horizontal Scalability**: Deploy multiple instances behind load balancer (Nginx/K8s)
 - **Async Request-Response Pattern**: Implements Beckn protocol's callback mechanism for most routes
 - **Real-time Pub/Sub**: Redis pub/sub for instant callback delivery (async routes)
-- **Request Matching**: Matches callbacks using transaction_id, message_id, and route mapping
+- **Request Matching**: Matches callbacks using transactionId, messageId, and route mapping
 - **Timeout Handling**: 30-second timeout with NACK response for async routes
 - **Automatic TTL Cleanup**: Redis auto-expires pending requests after 35 seconds
 - **Concurrent Request Handling**: Multiple requests can wait for callbacks simultaneously

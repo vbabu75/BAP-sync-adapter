@@ -40,9 +40,27 @@ func NewForwardController() *ForwardController {
 // RequestContext represents the context from the request body
 type RequestContext struct {
 	Context struct {
-		TransactionID string `json:"transaction_id"`
-		MessageID     string `json:"message_id"`
+		TransactionID       string `json:"transactionId"`
+		MessageID           string `json:"messageId"`
+		LegacyTransactionID string `json:"transaction_id"`
+		LegacyMessageID     string `json:"message_id"`
 	} `json:"context"`
+}
+
+// CorrelationIDs returns the ION v2 correlation IDs, falling back to the
+// legacy snake_case field names for backward compatibility.
+func (rc RequestContext) CorrelationIDs() (string, string) {
+	transactionID := rc.Context.TransactionID
+	if transactionID == "" {
+		transactionID = rc.Context.LegacyTransactionID
+	}
+
+	messageID := rc.Context.MessageID
+	if messageID == "" {
+		messageID = rc.Context.LegacyMessageID
+	}
+
+	return transactionID, messageID
 }
 
 // isSyncRoute checks if the route should use synchronous forwarding
@@ -75,16 +93,15 @@ func (fc *ForwardController) ForwardRequest(c *fiber.Ctx) error {
 		})
 	}
 
-	transactionID := reqContext.Context.TransactionID
-	messageID := reqContext.Context.MessageID
+	transactionID, messageID := reqContext.CorrelationIDs()
 
 	log.Printf("[Forward] TransactionID: %s", transactionID)
 	log.Printf("[Forward] MessageID: %s", messageID)
 
 	if transactionID == "" || messageID == "" {
-		log.Printf("[Forward] ERROR: Missing transaction_id or message_id")
+		log.Printf("[Forward] ERROR: Missing transactionId or messageId")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "context.transaction_id and context.message_id are required",
+			"error": "context.transactionId and context.messageId are required",
 		})
 	}
 

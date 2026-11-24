@@ -40,16 +40,15 @@ func (wc *WebhookController) HandleWebhook(c *fiber.Ctx) error {
 		})
 	}
 
-	transactionID := reqContext.Context.TransactionID
-	messageID := reqContext.Context.MessageID
+	transactionID, messageID := reqContext.CorrelationIDs()
 
 	log.Printf("[Webhook] TransactionID: %s", transactionID)
 	log.Printf("[Webhook] MessageID: %s", messageID)
 
 	if transactionID == "" || messageID == "" {
-		log.Printf("[Webhook] ERROR: Missing transaction_id or message_id")
+		log.Printf("[Webhook] ERROR: Missing transactionId or messageId")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "context.transaction_id and context.message_id are required",
+			"error": "context.transactionId and context.messageId are required",
 		})
 	}
 
