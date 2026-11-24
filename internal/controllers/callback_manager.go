@@ -18,17 +18,19 @@ type CallbackResponse struct {
 
 // RouteMapping maps forward routes to their callback routes
 var RouteMapping = map[string]string{
-	"discover": "on_discover",
-	"search":   "on_search",
-	"select":   "on_select",
-	"init":     "on_init",
-	"confirm":  "on_confirm",
-	"update":   "on_update",
-	"track":    "on_track",
-	"rating":   "on_rating",
-	"support":  "on_support",
-	"cancel":   "on_cancel",
-	"status":   "on_status",
+	"discover":  "on_discover",
+	"search":    "on_search",
+	"select":    "on_select",
+	"init":      "on_init",
+	"confirm":   "on_confirm",
+	"update":    "on_update",
+	"track":     "on_track",
+	"rate":      "on_rate",
+	"rating":    "on_rating",
+	"support":   "on_support",
+	"cancel":    "on_cancel",
+	"status":    "on_status",
+	"reconcile": "on_reconcile",
 }
 
 // CallbackManager manages pending requests using Redis

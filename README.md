@@ -140,7 +140,7 @@ The server will start on the port specified in your `.env` file (default: 3000).
 
 ### Async Forwarding Endpoint (For other routes)
 - `POST /api/{sub-route}` - Forwards request and waits for webhook callback
-  - Applies to: search, select, init, confirm, update, track, rating, support, cancel, status
+  - Applies to: search, select, init, confirm, update, track, rate, rating, support, cancel, status, reconcile
   - Requires `context.transaction_id` and `context.message_id` in request body
   - Forwards to `{ONIX_URL}/{sub-route}`
   - Waits up to 30 seconds for callback on `/webhook/{on_sub-route}`
@@ -148,7 +148,7 @@ The server will start on the port specified in your `.env` file (default: 3000).
 
 ### Webhook Endpoint
 - `POST /webhook/{on_sub-route}` - Receives async callbacks from target service
-  - Only for async routes (not search/discover)
+  - Only for async routes (not discover)
   - Matches with pending requests using `transaction_id`, `message_id`, and route mapping
   - Returns ACK/NACK response
 
@@ -168,10 +168,12 @@ The server will start on the port specified in your `.env` file (default: 3000).
 | `/api/confirm`  | `/webhook/on_confirm`  |
 | `/api/update`   | `/webhook/on_update`   |
 | `/api/track`    | `/webhook/on_track`    |
+| `/api/rate`     | `/webhook/on_rate`     |
 | `/api/rating`   | `/webhook/on_rating`   |
 | `/api/support`  | `/webhook/on_support`  |
 | `/api/cancel`   | `/webhook/on_cancel`   |
 | `/api/status`   | `/webhook/on_status`   |
+| `/api/reconcile` | `/webhook/on_reconcile` |
 
 ## Configuration
 
